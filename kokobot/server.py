@@ -5,6 +5,8 @@ import os
 import discord
 from discord.ext import commands
 
+from . import cogs
+
 
 def setup_logging():
     logger = logging.getLogger('discord')
@@ -14,7 +16,7 @@ def setup_logging():
     # log to file
     os.makedirs('log', exist_ok=True)
     file_handler = logging.FileHandler(
-        filename='log/{}.log'.format(int(datetime.datetime.now().timestamp())),
+        filename='log/{}.log'.format(int(datetime.datetime.utcnow().timestamp())),
         encoding='utf-8', mode='w')
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
@@ -28,17 +30,52 @@ def setup_logging():
 
     return logger
 
-def run(client_id, token):
+def run(
+    client_id,
+    token,
+    custom_cogs=[],
+):
     logger = setup_logging()
-    client = commands.Bot(command_prefix='$')
-    permissions = discord.Permissions(permissions=1477962816)
+    bot = commands.Bot(command_prefix='$')
+    permissions = discord.Permissions(permissions=0)
 
-    @client.event
+    # requested permissions
+    permissions.manage_roles = True
+    permissions.manage_nicknames = True
+    permissions.manage_emojis = True
+    permissions.view_channel = True
+    permissions.send_messages = True
+    permissions.manage_messages = True
+    permissions.embed_links = True
+    permissions.attach_files = True
+    permissions.read_message_history = True
+    permissions.mention_everyone = True
+    permissions.use_external_emojis = True
+    permissions.add_reactions = True
+    permissions.connect = True
+
+    # append cogs
+    default_cogs = [
+        cogs.Util,
+    ]
+    logger.info('Loading extensions:')
+    for cog in default_cogs:
+        cog = cog(bot)
+        bot.add_cog(cog)
+        logger.info('\t{}'.format(cog))
+    for cog in custom_cogs:
+        bot.load_extension(cog)
+        logger.info('\t{}'.format(cog))
+    logger.info('Done!')
+
+    @bot.event
     async def on_ready():
-        logger.info('Logged in as %s' % client.user)
+        logger.info('--------------------------------------------------------')
+        logger.info('Logged in as %s' % bot.user)
         logger.info('Invite me at: \n\n\t%s\n' % discord.utils.oauth_url(client_id, permissions=permissions))
+        logger.info('--------------------------------------------------------')
         logger.info('Servers connected to:')
-        for guild in client.guilds:
+        for guild in bot.guilds:
             logger.info('\t%s' % guild.name)
 
-    client.run(token)
+    bot.run(token)
