@@ -60,6 +60,7 @@ def run(
         cogs.Util,
         cogs.Roles,
         cogs.Koko,
+        cogs.Random,
     ]
     logger.info('Loading extensions:')
     for cog in default_cogs:

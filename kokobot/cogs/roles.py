@@ -31,7 +31,7 @@ class Roles(commands.Cog):
                 'Wholesome Fam': emoji_bank[':innocent:'],
             },
             'invalid_roles': [
-                '@everyone', 'kokobot', 'bot boi', 'AI', 'admin uwu', 'Officers', 'Quaranteens',
+                '@everyone', 'kokobot', 'bot boi', 'AI', 'admin uwu', 'Officers', 'Quaranteens', 'MEE6',
             ],
         }
         self.config['invalid_roles'].extend(self.config['family_roles'])
