@@ -27,7 +27,7 @@ class Util(commands.Cog):
         recv_end = datetime.datetime.utcnow().timestamp()
         send_start = datetime.datetime.utcnow().timestamp()
         message = await ctx.send('.')
-        send_end = message.created_at.timestamp()
+        send_end = datetime.datetime.utcnow().timestamp()
         await message.edit(content='Recieve: `{} ms`\nSend: `{} ms`'.format(int((recv_end - recv_start) * 1000), int((send_end - send_start) * 1000)))
 
     @commands.command()
