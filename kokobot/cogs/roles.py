@@ -18,7 +18,6 @@ class Roles(commands.Cog):
         self.config = {
             'channel': 'roles',
             'family_roles': {
-                'weebs': emoji_bank[':innocent:'],
                 'E-Fam': emoji_bank[':woozy_face:'],
                 'Gus\'s Chicken Coop Fam': emoji_bank[':hatching_chick:'],
                 'JK Fam': emoji_bank[':zany_face:'],
@@ -211,6 +210,7 @@ class TextRoles(commands.Cog):
 
     async def modify_roles(self, message):
         if (message.author == self.bot.user
+                or message.content[0] == '$'
                 or not message.channel.id in self.channels):
             return
 
