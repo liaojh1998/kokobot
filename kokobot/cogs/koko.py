@@ -212,7 +212,8 @@ class Koko(commands.Cog):
             await self.list_notes(self.messages[message_id]['message'], page, user,
                                   self.messages[message_id]['user'])
         elif self.messages[message_id]['type'] == 'search':
-            pass
+            await self.search_notes(self.messages[message_id]['message'], page, user,
+                                    self.messages[message_id]['query'])
 
     @koko.command()
     async def list(self, ctx, user: discord.User=None):
@@ -307,4 +308,71 @@ class Koko(commands.Cog):
         Usage: $koko search <query>
         Example: $koko search hello wow
         """
+        query = query.strip('\"')
         message = await ctx.send('Searching...')
+        await self.search_notes(message, 0, ctx.message.author, query)
+
+    async def search_notes(self, message, page, requester, query):
+        # Cleanup of previous message
+        if message.id in self.messages:
+            self.messages[message.id]['future'].cancel()
+        await message.clear_reactions()
+
+        try:
+            # Count
+            c = self.conn.cursor()
+            c.execute(f'SELECT COUNT(*) FROM {self.config["table_name"]} WHERE name LIKE "%{query}%"')
+            count = c.fetchone()[0]
+            count = math.ceil(count / self.config['per_page'])
+            if page > count - 1:
+                page = count - 1
+
+            # Fetch Results
+            if count > 0:
+                c.execute(f'SELECT name FROM {self.config["table_name"]} WHERE name LIKE "%{query}%" ORDER BY name LIMIT {self.config["per_page"]} OFFSET {page * self.config["per_page"]}')
+                results = c.fetchall()
+            self.conn.commit()
+
+            # Create the Embed
+            title = f"Search Results: Contains \"{query}\""
+            desc = None
+            if count > 0:
+                desc = '\n'.join(['*' + _[0] for _ in results])
+            embed = discord.Embed(title=title, description=desc, colour=16761035) # Pink
+            actual_page = page + 1
+            if count == 0:
+                actual_page = 0
+            embed.set_footer(text=f"Page {actual_page} of {count}")
+
+            # Edit the message
+            await message.edit(content=None, embed=embed)
+            logger.info('Sent koko search page {} of {} for "{}"'.format(actual_page, count, query))
+
+            # React to the message
+            has_more = False
+            if actual_page > 1:
+                has_more = True
+                await message.add_reaction(emoji_bank[':left_arrow:'])
+            if actual_page < count:
+                has_more = True
+                await message.add_reaction(emoji_bank[':right_arrow:'])
+
+            if has_more:
+                # Add message to messages dict
+                self.messages[message.id] = {}
+                self.messages[message.id]['message'] = message
+                self.messages[message.id]['type'] = 'search'
+                self.messages[message.id]['query'] = query
+                self.messages[message.id]['page'] = page
+                self.messages[message.id]['requester'] = requester
+
+                # Schedule a future clear of message
+                future = asyncio.Future()
+                asyncio.ensure_future(self.clear_message(future, message))
+                self.messages[message.id]['future'] = future
+        except sqlite3.Error as e:
+            logger.info('Database error: {}'.format(e))
+            await message.channel.send('Server error, @Jay#5035 pls fix!')
+        except Exception as e:
+            logger.info('Python error: {}'.format(e))
+            await message.channel.send('Server error, @Jay#5035 pls fix!')
