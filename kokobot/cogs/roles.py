@@ -14,6 +14,12 @@ emoji_bank = {
 
 
 class Roles(commands.Cog):
+    """Modifies the member roles in this server. Check out #roles channel.
+
+
+    Commands:
+      +number -- Add a role
+      -number -- Remove a role"""
     def __init__(self, bot):
         # Config
         self.config = {

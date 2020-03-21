@@ -36,7 +36,7 @@ def run(
     custom_cogs=[],
 ):
     logger = setup_logging()
-    bot = commands.Bot(command_prefix='$')
+    bot = commands.Bot(command_prefix='$', description="Kokobot for UT Austin SASE")
     permissions = discord.Permissions(permissions=0)
 
     # requested permissions
@@ -58,6 +58,7 @@ def run(
     default_cogs = [
         cogs.Util,
         cogs.Roles,
+        cogs.Koko,
     ]
     logger.info('Loading extensions:')
     for cog in default_cogs:

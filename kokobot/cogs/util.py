@@ -7,6 +7,8 @@ logger = logging.getLogger('discord.kokobot.util')
 
 
 class Util(commands.Cog):
+    """Utility commands
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -15,6 +17,9 @@ class Util(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
+        """ -- Ping Kokobot
+        Usage: $ping
+        """
         if ctx.prefix != '$':
             return
 
@@ -24,6 +29,10 @@ class Util(commands.Cog):
 
     @commands.command()
     async def shutdown(self, ctx):
+        """ -- Shutdown Kokobot
+        Usage: $shutdown
+        Only members of 'admin uwu', 'Officers', and 'bot boi' may use this.
+        """
         # admins
         admin_role = ['bot boi', 'admin uwu', 'Officers']
 
