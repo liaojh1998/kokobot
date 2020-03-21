@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import discord
@@ -57,6 +58,26 @@ class Roles(commands.Cog):
         # Ready other role bots
         await self.emoji_roles_bot.on_ready(self.channels)
         await self.text_roles_bot.on_ready(self.channels)
+
+        # Clear chat
+        await self.clear()
+
+    async def clear(self):
+        while True:
+            await asyncio.sleep(20 * 60) # every 20 minutes
+            message_ids = []
+            for channel in self.emoji_roles_bot.channel_info:
+                if ('message' in self.emoji_roles_bot.channel_info[channel]
+                        and not self.emoji_roles_bot.channel_info[channel]['message'] is None):
+                    message_ids.append(self.emoji_roles_bot.channel_info[channel]['message'].id)
+            for channel in self.text_roles_bot.channel_info:
+                if ('message' in self.text_roles_bot.channel_info[channel]
+                        and not self.text_roles_bot.channel_info[channel]['message'] is None):
+                    message_ids.append(self.text_roles_bot.channel_info[channel]['message'].id)
+            def is_role_msg(message):
+                return not message.id in message_ids
+            for channel in self.channels:
+                await channel.purge(limit=None, check=is_role_msg)
 
 
 class EmojiRoles(commands.Cog):
@@ -192,7 +213,6 @@ class TextRoles(commands.Cog):
                 self.channel_info[channel.id]['roles'].append(role)
         self.channel_info[channel.id]['roles'].reverse()
 
-<<<<<<< Updated upstream
         if self.channel_info[channel.id]['roles']:
             # Send help string
             help_str = 'Roles :clown::\n'
@@ -202,16 +222,6 @@ class TextRoles(commands.Cog):
             help_str += 'Use +number or -number or add or remove a role for yourself.\n'
             help_str += 'For example, +0 will give you the role "{}", and -0 will remove that role for you.'.format(self.channel_info[channel.id]['roles'][0].name)
             self.channel_info[channel.id]['message'] = await channel.send(help_str)
-=======
-        # Send help string
-        help_str = 'Other roles:\n'
-        for idx, role in enumerate(self.channel_info[channel.id]['roles']):
-            help_str += '\t\t`{}`: {}\n'.format(idx, role.name)
-        help_str += '\n'
-        help_str += 'Use +number or -number to add or remove a role for yourself.\n'
-        help_str += 'For example, +0 will give you the role "{}", and -0 will remove that role for you.'.format(self.channel_info[channel.id]['roles'][0].name)
-        self.channel_info[channel.id]['message'] = await channel.send(help_str)
->>>>>>> Stashed changes
 
     async def redo_roles_on_create(self, role):
         logger.info('Server created role "{}".'.format(role.name))
