@@ -80,7 +80,7 @@ def run(
         logger.info('Servers connected to:')
         for guild in bot.guilds:
             logger.info('\t%s' % guild.name)
-            for channel in bot.guilds.channel:
+            for channel in guild.channels:
                 if channel.name == 'bot':
                     await channel.send('Kokobot is ready! Use `$help` for more information.')
 

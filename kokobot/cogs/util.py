@@ -23,9 +23,12 @@ class Util(commands.Cog):
         if ctx.prefix != '$':
             return
 
-        start = ctx.message.created_at.timestamp()
-        end = datetime.datetime.utcnow().timestamp()
-        await ctx.send('`{} ms`'.format(int((end - start) * 1000)))
+        recv_start = ctx.message.created_at.timestamp()
+        recv_end = datetime.datetime.utcnow().timestamp()
+        send_start = datetime.datetime.utcnow().timestamp()
+        message = await ctx.send('.')
+        send_end = message.created_at.timestamp()
+        await message.edit(content='Recieve: `{} ms`\nSend: `{} ms`'.format(int((recv_end - recv_start) * 1000), int((send_end - send_start) * 1000)))
 
     @commands.command()
     async def shutdown(self, ctx):
