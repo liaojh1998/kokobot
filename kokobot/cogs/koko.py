@@ -30,6 +30,7 @@ class Koko(commands.Cog):
         }
 
         self.bot = bot
+        self.bot.add_listener(self.on_ready, 'on_ready')
         self.bot.add_listener(self.setup, 'on_connect')
         self.bot.add_listener(self.setup, 'on_resume')
         self.bot.add_listener(self.teardown, 'on_disconnect')
@@ -58,6 +59,9 @@ class Koko(commands.Cog):
     async def teardown(self):
         logger.info("Closing connection to sqlite...")
         self.conn.close()
+
+    async def on_ready(self):
+        self.owner = self.bot.get_user(self.bot.owner_id)
 
     @commands.group()
     async def koko(self, ctx):
@@ -94,10 +98,10 @@ class Koko(commands.Cog):
             await ctx.send('Invalid arguments for `$koko add`, use `$help koko add` for more information.')
         elif isinstance(error.original, sqlite3.Error):
             logger.info('Database error: {}'.format(error))
-            await ctx.send('Server error, @Jay#5035 pls fix!')
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
         elif isinstance(error, Exception):
             logger.info('Python error: {}'.format(error))
-            await ctx.send('Server error, @Jay#5035 pls fix!')
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     async def get(self, message):
         """ -- Get an added note.
@@ -129,10 +133,10 @@ class Koko(commands.Cog):
                 await message.channel.send(value)
         except sqlite3.Error as e:
             logger.info('Database error: {}'.format(e))
-            await message.channel.send('Server error, @Jay#5035 pls fix!')
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
         except Exception as e:
             logger.info('Python error: {}'.format(e))
-            await message.channel.send('Server error, @Jay#5035 pls fix!')
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     @koko.command()
     async def remove(self, ctx, *, name):
@@ -150,7 +154,7 @@ class Koko(commands.Cog):
             owner = user[0]
             if owner != deleter:
                 owner = ctx.bot.get_user(owner)
-                await ctx.send('`*{}` belongs to {}.\nCannot delete a note that\'s not your\'s, {}.'.format(name, owner, ctx.message.author))
+                await ctx.send('`*{}` belongs to {}.\nCannot delete a note that\'s not your\'s, {}.'.format(name, owner, ctx.message.author.mention))
             else:
                 c.execute(f'DELETE FROM {self.config["table_name"]} WHERE name=(?)', (name,))
                 logger.info('Removed note `{}` for {}'.format(name, ctx.message.author))
@@ -163,10 +167,10 @@ class Koko(commands.Cog):
             await ctx.send('Invalid arguments for `$koko remove/delete`, use `$help koko remove/delete` for more information.')
         elif isinstance(error, sqlite3.Error):
             logger.info('Database error: {}'.format(error))
-            await ctx.send('Server error, @Jay#5035 pls fix!')
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
         elif isinstance(error, Exception):
             logger.info('Python error: {}'.format(error))
-            await ctx.send('Server error, @Jay#5035 pls fix!')
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     @koko.command()
     async def delete(self, ctx, *, name):
@@ -297,18 +301,18 @@ class Koko(commands.Cog):
                 self.messages[message.id]['future'] = future
         except sqlite3.Error as e:
             logger.info('Database error: {}'.format(e))
-            await message.channel.send('Server error, @Jay#5035 pls fix!')
+            await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
         except Exception as e:
             logger.info('Python error: {}'.format(e))
-            await message.channel.send('Server error, @Jay#5035 pls fix!')
+            await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     @koko.command()
     async def search(self, ctx, *, query):
-        """ -- Search for a set of notes that contains query
+        """ -- Search for a set of notes that contains the <query>
         Usage: $koko search <query>
         Example: $koko search hello wow
         """
-        query = query.strip('\"')
+        query = query.replace('\"', '')
         message = await ctx.send('Searching...')
         await self.search_notes(message, 0, ctx.message.author, query)
 
@@ -372,7 +376,7 @@ class Koko(commands.Cog):
                 self.messages[message.id]['future'] = future
         except sqlite3.Error as e:
             logger.info('Database error: {}'.format(e))
-            await message.channel.send('Server error, @Jay#5035 pls fix!')
+            await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
         except Exception as e:
             logger.info('Python error: {}'.format(e))
-            await message.channel.send('Server error, @Jay#5035 pls fix!')
+            await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))

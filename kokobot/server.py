@@ -33,10 +33,11 @@ def setup_logging():
 def run(
     client_id,
     token,
+    owner_id=None,
     custom_cogs=[],
 ):
     logger = setup_logging()
-    bot = commands.Bot(command_prefix='$', description="Kokobot for UT Austin SASE")
+    bot = commands.Bot(command_prefix='$', description="Kokobot for UT Austin SASE", owner_id=owner_id)
     permissions = discord.Permissions(permissions=0)
 
     # requested permissions
@@ -79,5 +80,8 @@ def run(
         logger.info('Servers connected to:')
         for guild in bot.guilds:
             logger.info('\t%s' % guild.name)
+            for channel in bot.guilds.channel:
+                if channel.name == 'bot':
+                    await channel.send('Kokobot is ready! Use `$help` for more information.')
 
     bot.run(token)

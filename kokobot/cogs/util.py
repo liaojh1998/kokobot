@@ -45,7 +45,7 @@ class Util(commands.Cog):
                         break;
         # Shutdown
         if can_shutdown:
-            sent = await ctx.send('Shutting down server...')
+            sent = await ctx.send('Shutting down bot...')
             logger.info('Shutting down as {}'.format(ctx.message.author))
             await ctx.bot.logout()
         else:
