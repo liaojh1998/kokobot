@@ -70,7 +70,7 @@ class Roles(commands.Cog):
 
     async def clear(self):
         while True:
-            await asyncio.sleep(20 * 60) # every 20 minutes
+            await asyncio.sleep(10 * 60) # every 10 minutes
             message_ids = []
             for channel in self.emoji_roles_bot.channel_info:
                 if ('message' in self.emoji_roles_bot.channel_info[channel]
@@ -243,13 +243,13 @@ class TextRoles(commands.Cog):
 
     async def modify_roles(self, message):
         if (message.author == self.bot.user
+                or len(message.content) == 0
                 or message.content[0] == '$'
                 or not message.channel.id in self.channels):
             return
 
         # Check the command is legitimate
-        if not (len(message.content) > 0
-                and message.content[0] in ('+', '-')
+        if not (message.content[0] in ('+', '-')
                 and message.content[1:].isdigit()):
             sent = await message.channel.send('Invalid role command.')
             await message.delete(delay=5)
