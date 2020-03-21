@@ -220,6 +220,33 @@ class Koko(commands.Cog):
                                     self.messages[message_id]['query'])
 
     @koko.command()
+    async def who(self, ctx, *, name):
+        """ -- Check who has made the note with <name>
+        Uasge: $koko who <name>
+        Example: $koko who hello
+        """
+        c = self.conn.cursor()
+        c.execute(f'SELECT user FROM {self.config["table_name"]} WHERE name=(?)', (name,))
+        user = c.fetchone()
+        self.conn.commit()
+        if user is None:
+            await ctx.send("`*{}` does not exist.".format(name))
+        else:
+            user = self.bot.get_user(user[0])
+            await ctx.send("`*{}` was added by {}.".format(name, user))
+
+    @who.error
+    async def who_error(self, ctx, error):
+        if isinstance(error, MissingRequiredArgument):
+            await ctx.send('Invalid arguments for `$koko who`, use `$help koko who` for more information.')
+        elif isinstance(error.original, sqlite3.Error):
+            logger.info('Database error: {}'.format(error))
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+        elif isinstance(error, Exception):
+            logger.info('Python error: {}'.format(error))
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+
+    @koko.command()
     async def list(self, ctx, user: discord.User=None):
         """ -- List a set of notes (belonging to a user)
         Usage: $koko list [user]
@@ -307,7 +334,7 @@ class Koko(commands.Cog):
             await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     @koko.command()
-    async def search(self, ctx, *, query):
+    async def search(self, ctx, *, query=""):
         """ -- Search for a set of notes that contains the <query>
         Usage: $koko search <query>
         Example: $koko search hello wow
