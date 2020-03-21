@@ -57,6 +57,7 @@ def run(
     # append cogs
     default_cogs = [
         cogs.Util,
+        cogs.Roles,
     ]
     logger.info('Loading extensions:')
     for cog in default_cogs:

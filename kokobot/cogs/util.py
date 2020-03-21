@@ -15,6 +15,9 @@ class Util(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
+        if ctx.prefix != '$':
+            return
+
         start = ctx.message.created_at.timestamp()
         end = datetime.datetime.utcnow().timestamp()
-        await ctx.send('`{}` ms'.format(int(end - start)))
+        await ctx.send('`{} ms`'.format(int(end - start)))
