@@ -81,7 +81,9 @@ class EmojiRoles(commands.Cog):
 
     async def setup_roles(self, channel):
         if 'message' in self.channel_info[channel.id]:
-            await self.channel_info[channel.id]['message'].delete()
+            if not self.channel_info[channel.id]['message'] is None:
+                await self.channel_info[channel.id]['message'].delete()
+            self.channel_info[channel.id]['message'] = None
 
         # Setup roles
         self.channel_info[channel.id]['roles'] = {}
@@ -91,17 +93,18 @@ class EmojiRoles(commands.Cog):
                     self.channel_info[channel.id]['roles'][emoji] = role
                     break
 
-        # Send help string
-        help_str = 'Families :smiling_face_with_3_hearts::\n'
-        for emoji, role in self.channel_info[channel.id]['roles'].items():
-            help_str += '\t\t* {}\n'.format(role.name)
-        help_str += '\n'
-        help_str += 'Choose an emoji to join a family:\n'
-        self.channel_info[channel.id]['message'] = await channel.send(help_str)
+        if self.channel_info[channel.id]['roles']:
+            # Send help string
+            help_str = 'Families :smiling_face_with_3_hearts::\n'
+            for emoji, role in self.channel_info[channel.id]['roles'].items():
+                help_str += '\t\t* {}\n'.format(role.name)
+            help_str += '\n'
+            help_str += 'Choose an emoji to join a family:\n'
+            self.channel_info[channel.id]['message'] = await channel.send(help_str)
 
-        # React to the message
-        for emoji in self.channel_info[channel.id]['roles']:
-            await self.channel_info[channel.id]['message'].add_reaction(emoji)
+            # React to the message
+            for emoji in self.channel_info[channel.id]['roles']:
+                await self.channel_info[channel.id]['message'].add_reaction(emoji)
 
     async def redo_roles_on_create(self, role):
         logger.info('Server created role "{}".'.format(role.name))
@@ -112,7 +115,7 @@ class EmojiRoles(commands.Cog):
         await self.setup_roles(self.guild_to_channel[role.guild.id])
 
     async def redo_roles_on_update(self, before, after):
-        logger.info('Server updated role "{}".'.format(role.name))
+        logger.info('Server updated role "{}".'.format(after.name))
         await self.setup_roles(self.guild_to_channel[after.guild.id])
 
     async def add_role(self, reaction, user):
@@ -173,7 +176,9 @@ class TextRoles(commands.Cog):
 
     async def setup_roles(self, channel):
         if 'message' in self.channel_info[channel.id]:
-            await self.channel_info[channel.id]['message'].delete()
+            if not self.channel_info[channel.id]['message'] is None:
+                await self.channel_info[channel.id]['message'].delete()
+            self.channel_info[channel.id]['message'] = None
 
         # Setup roles
         self.channel_info[channel.id]['roles'] = []
@@ -187,14 +192,15 @@ class TextRoles(commands.Cog):
                 self.channel_info[channel.id]['roles'].append(role)
         self.channel_info[channel.id]['roles'].reverse()
 
-        # Send help string
-        help_str = 'Other roles:\n'
-        for idx, role in enumerate(self.channel_info[channel.id]['roles']):
-            help_str += '\t\t`{}`: {}\n'.format(idx, role.name)
-        help_str += '\n'
-        help_str += 'Use +number or -number or add or remove a role for yourself.\n'
-        help_str += 'For example, +0 will give you the role "{}", and -0 will remove that role for you.'.format(self.channel_info[channel.id]['roles'][0].name)
-        self.channel_info[channel.id]['message'] = await channel.send(help_str)
+        if self.channel_info[channel.id]['roles']:
+            # Send help string
+            help_str = 'Roles :clown::\n'
+            for idx, role in enumerate(self.channel_info[channel.id]['roles']):
+                help_str += '\t\t`{}`: {}\n'.format(idx, role.name)
+            help_str += '\n'
+            help_str += 'Use +number or -number or add or remove a role for yourself.\n'
+            help_str += 'For example, +0 will give you the role "{}", and -0 will remove that role for you.'.format(self.channel_info[channel.id]['roles'][0].name)
+            self.channel_info[channel.id]['message'] = await channel.send(help_str)
 
     async def redo_roles_on_create(self, role):
         logger.info('Server created role "{}".'.format(role.name))
@@ -205,7 +211,7 @@ class TextRoles(commands.Cog):
         await self.setup_roles(self.guild_to_channel[role.guild.id])
 
     async def redo_roles_on_update(self, before, after):
-        logger.info('Server updated role "{}".'.format(role.name))
+        logger.info('Server updated role "{}".'.format(after.name))
         await self.setup_roles(self.guild_to_channel[after.guild.id])
 
     async def modify_roles(self, message):

@@ -20,4 +20,4 @@ class Util(commands.Cog):
 
         start = ctx.message.created_at.timestamp()
         end = datetime.datetime.utcnow().timestamp()
-        await ctx.send('`{} ms`'.format(int(end - start)))
+        await ctx.send('`{} ms`'.format(int((end - start) * 1000)))
