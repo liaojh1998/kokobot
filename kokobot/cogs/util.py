@@ -28,7 +28,7 @@ class Util(commands.Cog):
         old_name = user.display_name
         await user.edit(nick=nickname, reason="[{}] {} requested change nick to {}".format(datetime.datetime.utcnow().timestamp(), old_name, nickname))
         logger.info("Changed nickname of {} to {}.".format(old_name, user.display_name))
-        await ctx.send("Changed your nickname to {}.".format(user.display_name))
+        await ctx.send("Changed your nickname to {}, {}.".format(user.display_name, user.mention))
 
     @nick.error
     async def nick_error(self, ctx, error):
