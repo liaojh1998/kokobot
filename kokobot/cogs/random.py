@@ -48,22 +48,21 @@ class Random(commands.Cog):
         if reaction.emoji == emoji_bank[':twisted_rightwards_arrows:']:
             # Shuffle
             await reaction.remove(user)
-            if user in self.messages[message.id]['people']:
-                if len(self.messages[message.id]['people']) == 0:
-                    self.messages[message.id]['groups_list'] = None
-                else:
-                    self.messages[message.id]['groups_list'] = []
-                    for _ in range(self.messages[message.id]['groups']):
-                        self.messages[message.id]['groups_list'].append([])
-                    shuffle = list(self.messages[message.id]['people'])
-                    rng.shuffle(shuffle)
-                    for i, p in enumerate(shuffle):
-                        g = i % self.messages[message.id]['groups']
-                        self.messages[message.id]['groups_list'][g].append(p)
-                await self.mixer_display(self.messages[message.id]['message'],
-                                         self.messages[message.id]['people'],
-                                         self.messages[message.id]['groups'],
-                                         self.messages[message.id]['groups_list'])
+            if len(self.messages[message.id]['people']) == 0:
+                self.messages[message.id]['groups_list'] = None
+            else:
+                self.messages[message.id]['groups_list'] = []
+                for _ in range(self.messages[message.id]['groups']):
+                    self.messages[message.id]['groups_list'].append([])
+                shuffle = list(self.messages[message.id]['people'])
+                rng.shuffle(shuffle)
+                for i, p in enumerate(shuffle):
+                    g = i % self.messages[message.id]['groups']
+                    self.messages[message.id]['groups_list'][g].append(p)
+            await self.mixer_display(self.messages[message.id]['message'],
+                                     self.messages[message.id]['people'],
+                                     self.messages[message.id]['groups'],
+                                     self.messages[message.id]['groups_list'])
         elif reaction.emoji == emoji_bank[':octagonal_sign:']:
             # Stop
             await reaction.remove(user)
