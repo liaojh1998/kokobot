@@ -27,10 +27,11 @@ class Util(commands.Cog):
 
         As default, typing $nick will simply remove your nickname.
         """
-        user = ctx.message.author
-        old_name = user.display_name
         if len(nickname) > 32:
             await ctx.send("Nickname must be 32 or fewer characters.")
+            return
+        user = ctx.message.author
+        old_name = user.display_name
         if len(nickname) == 0:
             nickname = None
         await user.edit(nick=nickname, reason="[{}] {} requested change nick to {}".format(datetime.datetime.utcnow().timestamp(), old_name, nickname))
