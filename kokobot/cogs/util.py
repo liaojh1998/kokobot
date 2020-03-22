@@ -1,7 +1,9 @@
 import datetime
 import logging
+import typing
 
 from discord.ext import commands
+from discord.ext.commands.errors import MissingRequiredArgument
 
 logger = logging.getLogger('discord.kokobot.util')
 
@@ -16,13 +18,30 @@ class Util(commands.Cog):
         return 'kokobot.cogs.Util'
 
     @commands.command()
+    async def nick(self, ctx, *, nickname: str):
+        """ -- Change your nickname
+        Usage: $nick <nickname>
+        Example: $nick hello
+        """
+        user = ctx.message.author
+        old_name = user.display_name
+        await user.edit(nick=nickname, reason="[{}] {} requested change nick to {}".format(datetime.datetime.utcnow().timestamp(), old_name, nickname))
+        logger.info("Changed nickname of {} to {}.".format(old_name, user.display_name))
+        await ctx.send("Changed your nickname to {}.".format(user.display_name))
+
+    @nick.error
+    async def nick_error(self, ctx, error):
+        if isinstance(error, MissingRequiredArgument):
+            await ctx.send("Missing nickname.")
+        else:
+            logger.info("Setting nickname encountered an error: {}".format(error))
+            await ctx.send("Bot error!")
+
+    @commands.command()
     async def ping(self, ctx):
         """ -- Ping Kokobot
         Usage: $ping
         """
-        if ctx.prefix != '$':
-            return
-
         recv_start = ctx.message.created_at.timestamp()
         recv_end = datetime.datetime.utcnow().timestamp()
         send_start = datetime.datetime.utcnow().timestamp()
