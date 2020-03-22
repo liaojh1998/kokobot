@@ -19,22 +19,25 @@ class Util(commands.Cog):
         return 'kokobot.cogs.Util'
 
     @commands.command()
-    async def nick(self, ctx, *, nickname: str):
+    async def nick(self, ctx, *, nickname: str=""):
         """ -- Change your nickname
-        Usage: $nick <nickname>
+        Usage: $nick [nickname]
         Example: $nick hello
+        Special case: $nick, which removes your nickname
+
+        As default, typing $nick will simply remove your nickname.
         """
         user = ctx.message.author
         old_name = user.display_name
+        if len(nickname) == 0:
+            nickname=None
         await user.edit(nick=nickname, reason="[{}] {} requested change nick to {}".format(datetime.datetime.utcnow().timestamp(), old_name, nickname))
         logger.info("Changed nickname of {} to {}.".format(old_name, user.display_name))
         await ctx.send("Changed your nickname to {}, {}.".format(user.display_name, user.mention))
 
     @nick.error
     async def nick_error(self, ctx, error):
-        if isinstance(error, MissingRequiredArgument):
-            await ctx.send("Missing nickname.")
-        elif isinstance(error.original, Forbidden):
+        if isinstance(error.original, Forbidden):
             await ctx.send("Cannot change nickname for you, {}. Bot permissions hierarchy is lower than your roles or you're the owner.".format(ctx.message.author.mention))
         else:
             logger.info("Setting nickname encountered an error: {}".format(error))
