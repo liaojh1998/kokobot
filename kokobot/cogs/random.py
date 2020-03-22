@@ -70,6 +70,9 @@ class Random(commands.Cog):
                 if message.id in self.messages:
                     self.messages.pop(message.id)
                 await message.clear_reactions()
+                embed = message.embed
+                embed.desc = "Mixer has stopped."
+                await message.edit(embed=embed)
         else:
             # Add user
             if not user in self.messages[message.id]['people']:
