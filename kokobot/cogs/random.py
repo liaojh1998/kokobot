@@ -168,6 +168,7 @@ class Random(commands.Cog):
         self.messages[message.id]['groups'] = groups
         self.messages[message.id]['groups_list'] = None
         self.messages[message.id]['owner'] = ctx.message.author
+        logger.info("Created a random mixer for {}".format(ctx.message.author))
 
         # Display and enqueue future
         await self.mixer_display(self.messages[message.id]['message'],
