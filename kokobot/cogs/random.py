@@ -32,9 +32,12 @@ class Random(commands.Cog):
     async def clear_message(self, message, future):
         await asyncio.sleep(60)
         if not future.cancelled():
-            await message.clear_reactions()
             if message.id in self.messages:
                 self.messages.pop(message.id)
+                await message.clear_reactions()
+                embed = message.embeds[0]
+                embed.description += "\n\nMixer has stopped."
+                await message.edit(embed=embed)
 
     async def react(self, reaction, user):
         if (user == self.bot.user
@@ -69,10 +72,10 @@ class Random(commands.Cog):
                     self.messages[message.id]['future'].cancel()
                 if message.id in self.messages:
                     self.messages.pop(message.id)
-                await message.clear_reactions()
-                embed = message.embed
-                embed.desc = "Mixer has stopped."
-                await message.edit(embed=embed)
+                    await message.clear_reactions()
+                    embed = message.embeds[0]
+                    embed.description += "\n\nMixer has stopped."
+                    await message.edit(embed=embed)
         else:
             # Add user
             if not user in self.messages[message.id]['people']:
