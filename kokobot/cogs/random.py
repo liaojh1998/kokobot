@@ -119,7 +119,8 @@ class Random(commands.Cog):
 
     @commands.group()
     async def random(self, ctx):
-        """ -- Random the RNG
+        """ -- Random
+        Anything that's random. Well, it's actually pseudo-random but okay.
         Use $help random <command> for more information.
         """
         if ctx.invoked_subcommand is None:

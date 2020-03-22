@@ -66,6 +66,7 @@ class Koko(commands.Cog):
     @commands.group()
     async def koko(self, ctx):
         """ -- Koko the notetaker
+        Associates a name with a note. Can be a name for memes, links, and anything.
         Use $help koko <command> for more information.
         """
         if ctx.invoked_subcommand is None:
