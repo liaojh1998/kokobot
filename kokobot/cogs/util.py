@@ -4,6 +4,7 @@ import typing
 
 from discord.ext import commands
 from discord.ext.commands.errors import MissingRequiredArgument
+from discord.errors import Forbidden
 
 logger = logging.getLogger('discord.kokobot.util')
 
@@ -33,6 +34,8 @@ class Util(commands.Cog):
     async def nick_error(self, ctx, error):
         if isinstance(error, MissingRequiredArgument):
             await ctx.send("Missing nickname.")
+        elif isinstance(error.original, Forbidden):
+            await ctx.send("Cannot change nickname for you, {}. Bot permissions hierarchy is lower than your roles or you're the owner.".format(ctx.message.author.mention))
         else:
             logger.info("Setting nickname encountered an error: {}".format(error))
             await ctx.send("Bot error!")
