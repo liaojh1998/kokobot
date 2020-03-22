@@ -1,9 +1,11 @@
 import asyncio
 import logging
 import random as rng
+import typing
 
 import discord
 from discord.ext import commands
+from discord.ext.commands.errors import BadArgument
 
 logger = logging.getLogger('discord.kokobot.random')
 emoji_bank = {
@@ -24,10 +26,15 @@ class Random(commands.Cog):
         }
 
         self.bot = bot
+        self.owner = self.bot.get_user(self.bot.owner_id)
         rng.seed()
         self.messages = {}
+        self.bot.add_listener(self.on_ready, 'on_ready')
         self.bot.add_listener(self.react, 'on_reaction_add')
         self.bot.add_listener(self.unreact, 'on_reaction_remove')
+
+    async def on_ready(self):
+        self.owner = self.bot.get_user(self.bot.owner_id)
 
     async def clear_message(self, message, future):
         await asyncio.sleep(60)
@@ -198,3 +205,44 @@ class Random(commands.Cog):
         self.messages[message.id]['future'] = future
         await self.clear_message(self.messages[message.id]['message'],
                                  future)
+
+    @random.command()
+    async def number(self, ctx, from_num: int=0, to_num: int=100):
+        """ -- Random number generator
+        Usage: $random number [from_num] [to_num]
+        Example: $random number 20 30
+
+        Gives a number in the range [from_num, to_num], inclusive.
+        Same as '$rng' command.
+        """
+        if from_num > to_num:
+            await ctx.send('Invalid range.')
+        else:
+            await ctx.send('{}'.format(rng.randint(from_num, to_num)))
+
+    @number.error
+    async def number_error(self, ctx, error):
+        if isinstance(error, BadArgument):
+            await ctx.send('Invalid arguments for `$random number`. Use `$help random number` for more information.')
+        else:
+            logger.info('Random number got system error: {}'.format(error))
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+
+    @commands.command()
+    async def rng(self, ctx, from_num: int=0, to_num: int=100):
+        """ -- Random number generator
+        Usage: $rng [from_num] [to_num]
+        Example: $rng 20 30
+
+        Gives a number in the range [from_num, to_num], inclusive.
+        Same as '$random number' command.
+        """
+        await self.number(ctx, from_num, to_num)
+
+    @rng.error
+    async def rng_error(self, ctx, error):
+        if isinstance(error, BadArgument):
+            await ctx.send('Invalid arguments for `$rng`. Use `$help rng` for more information.')
+        else:
+            logger.info('Random number got system error: {}'.format(error))
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
