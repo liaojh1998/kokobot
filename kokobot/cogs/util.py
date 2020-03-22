@@ -29,8 +29,10 @@ class Util(commands.Cog):
         """
         user = ctx.message.author
         old_name = user.display_name
+        if len(nickname) > 32:
+            await ctx.send("Nickname must be 32 or fewer characters.")
         if len(nickname) == 0:
-            nickname=None
+            nickname = None
         await user.edit(nick=nickname, reason="[{}] {} requested change nick to {}".format(datetime.datetime.utcnow().timestamp(), old_name, nickname))
         logger.info("Changed nickname of {} to {}.".format(old_name, user.display_name))
         await ctx.send("Changed your nickname to {}, {}.".format(user.display_name, user.mention))
