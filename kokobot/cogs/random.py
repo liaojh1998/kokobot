@@ -2,8 +2,6 @@ import asyncio
 import logging
 import random as rng
 
-from copy import copy
-
 import discord
 from discord.ext import commands
 
@@ -54,7 +52,7 @@ class Random(commands.Cog):
                     self.messages[message.id]['groups_list'] = []
                     for _ in range(self.messages[message.id]['groups']):
                         self.messages[message.id]['groups_list'].append([])
-                    shuffle = copy(self.messages[message.id]['people'])
+                    shuffle = list(self.messages[message.id]['people'])
                     rng.shuffle(shuffle)
                     for i, p in enumerate(shuffle):
                         g = i % self.messages[message.id]['groups']
