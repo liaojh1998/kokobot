@@ -126,7 +126,7 @@ class EmojiRoles(commands.Cog):
             for emoji, role in self.channel_info[channel.id]['roles'].items():
                 help_str += '\t\t* {}\n'.format(role.name)
             help_str += '\n'
-            help_str += 'Select an emoji to join a family, deselect an emoji to leave a family:\n'
+            help_str += 'React an emoji to join a family, unreact an emoji to leave a family:\n'
             self.channel_info[channel.id]['message'] = await channel.send(help_str)
 
             # React to the message
@@ -225,8 +225,8 @@ class TextRoles(commands.Cog):
             for idx, role in enumerate(self.channel_info[channel.id]['roles']):
                 help_str += '\t\t`{}`: {}\n'.format(idx, role.name)
             help_str += '\n'
-            help_str += 'Use +number or -number or add or remove a role for yourself.\n'
-            help_str += 'For example, +0 will give you the role "{}", and -0 will remove that role for you.'.format(self.channel_info[channel.id]['roles'][0].name)
+            help_str += 'Use `+number` to add or `-number` to remove a role for yourself.\n'
+            help_str += 'For example, `+0` will give you the role "{}", and `-0` will remove that role for you.'.format(self.channel_info[channel.id]['roles'][0].name)
             self.channel_info[channel.id]['message'] = await channel.send(help_str)
 
     async def redo_roles_on_create(self, role):

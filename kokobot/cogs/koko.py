@@ -196,13 +196,8 @@ class Koko(commands.Cog):
                 or not reaction.message.id in self.messages):
             return
 
-        # Check user is requester
-        message_id = reaction.message.id
-        if self.messages[message_id]['requester'].id != user.id:
-            await reaction.remove(user)
-            return
-
         # Get new page number
+        message_id = reaction.message.id
         page = self.messages[message_id]['page']
         if reaction.emoji == emoji_bank[':left_arrow:']:
             page -= 1
@@ -213,10 +208,10 @@ class Koko(commands.Cog):
 
         # Reset message
         if self.messages[message_id]['type'] == 'list':
-            await self.list_notes(self.messages[message_id]['message'], page, user,
+            await self.list_notes(self.messages[message_id]['message'], page,
                                   self.messages[message_id]['user'])
         elif self.messages[message_id]['type'] == 'search':
-            await self.search_notes(self.messages[message_id]['message'], page, user,
+            await self.search_notes(self.messages[message_id]['message'], page,
                                     self.messages[message_id]['query'])
 
     @koko.command()
@@ -256,9 +251,9 @@ class Koko(commands.Cog):
         If user field is not empty, it needs to tag the user.
         """
         message = await ctx.send('Listing...')
-        await self.list_notes(message, 0, ctx.message.author, user)
+        await self.list_notes(message, 0, user)
 
-    async def list_notes(self, message, page, requester, user):
+    async def list_notes(self, message, page, user):
         # Cleanup of previous message
         if message.id in self.messages:
             self.messages[message.id]['future'].cancel()
@@ -320,7 +315,6 @@ class Koko(commands.Cog):
                 self.messages[message.id]['type'] = 'list'
                 self.messages[message.id]['user'] = user
                 self.messages[message.id]['page'] = page
-                self.messages[message.id]['requester'] = requester
 
                 # Schedule a future clear of message
                 future = asyncio.Future()
@@ -341,9 +335,9 @@ class Koko(commands.Cog):
         """
         query = query.replace('\"', '')
         message = await ctx.send('Searching...')
-        await self.search_notes(message, 0, ctx.message.author, query)
+        await self.search_notes(message, 0, query)
 
-    async def search_notes(self, message, page, requester, query):
+    async def search_notes(self, message, page, query):
         # Cleanup of previous message
         if message.id in self.messages:
             self.messages[message.id]['future'].cancel()
@@ -395,7 +389,6 @@ class Koko(commands.Cog):
                 self.messages[message.id]['type'] = 'search'
                 self.messages[message.id]['query'] = query
                 self.messages[message.id]['page'] = page
-                self.messages[message.id]['requester'] = requester
 
                 # Schedule a future clear of message
                 future = asyncio.Future()

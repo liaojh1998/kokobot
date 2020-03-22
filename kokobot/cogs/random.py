@@ -7,12 +7,12 @@ from discord.ext import commands
 
 logger = logging.getLogger('discord.kokobot.random')
 emoji_bank = {
-    ':wheelchair:': '\U0000267F',
-    ':passport_control:': '\U0001F6C2',
-    ':sos:': '\U0001F198',
-    ':u5408:': '\U0001F234',
+    ':regional_indicator_j:': '\U0001F1EF',
+    ':regional_indicator_o:': '\U0001F1F4',
+    ':regional_indicator_i:': '\U0001F1EE',
+    ':regional_indicator_n:': '\U0001F1F3',
     ':twisted_rightwards_arrows:': '\U0001F500',
-    ':u7981:': '\U0001F232',
+    ':octagonal_sign:': '\U0001F6D1',
 }
 
 
@@ -48,7 +48,7 @@ class Random(commands.Cog):
         if reaction.emoji == emoji_bank[':twisted_rightwards_arrows:']:
             # Shuffle
             await reaction.remove(user)
-            if user == self.messages[message.id]['owner']:
+            if user in self.messages[message.id]['people']:
                 if len(self.messages[message.id]['people']) == 0:
                     self.messages[message.id]['groups_list'] = None
                 else:
@@ -64,7 +64,7 @@ class Random(commands.Cog):
                                          self.messages[message.id]['people'],
                                          self.messages[message.id]['groups'],
                                          self.messages[message.id]['groups_list'])
-        elif reaction.emoji == emoji_bank[':u7981:']:
+        elif reaction.emoji == emoji_bank[':octagonal_sign:']:
             # Stop
             await reaction.remove(user)
             if user == self.messages[message.id]['owner']:
@@ -90,24 +90,26 @@ class Random(commands.Cog):
                 or not reaction.message.id in self.messages):
             return
 
-        users = set()
-        message = reaction.message
-        for reaction in message.reactions:
-            async for user in reaction.users():
-                if user != self.bot.user:
-                    users.add(user)
-        remove = []
-        for p in self.messages[message.id]['people']:
-            if not p in users:
-                remove.append(p)
-        for p in remove:
-            if p in self.messages[message.id]['people']:
-                self.messages[message.id]['people'].remove(p)
-        if remove:
-            await self.mixer_display(self.messages[message.id]['message'],
-                                     self.messages[message.id]['people'],
-                                     self.messages[message.id]['groups'],
-                                     self.messages[message.id]['groups_list'])
+        if (reaction.emoji != emoji_bank[':twisted_rightwards_arrows:']
+                and reaction.emoji != emoji_bank[':octagonal_sign:']):
+            users = set()
+            message = reaction.message
+            for reaction in message.reactions:
+                async for user in reaction.users():
+                    if user != self.bot.user:
+                        users.add(user)
+            remove = []
+            for p in self.messages[message.id]['people']:
+                if not p in users:
+                    remove.append(p)
+            for p in remove:
+                if p in self.messages[message.id]['people']:
+                    self.messages[message.id]['people'].remove(p)
+            if remove:
+                await self.mixer_display(self.messages[message.id]['message'],
+                                         self.messages[message.id]['people'],
+                                         self.messages[message.id]['groups'],
+                                         self.messages[message.id]['groups_list'])
 
     @commands.group()
     async def random(self, ctx):
@@ -145,12 +147,12 @@ class Random(commands.Cog):
         message = await ctx.send(embed=embed)
 
         # Add reactions
-        await message.add_reaction(emoji_bank[':wheelchair:'])
-        await message.add_reaction(emoji_bank[':sos:'])
-        await message.add_reaction(emoji_bank[':passport_control:'])
-        await message.add_reaction(emoji_bank[':u5408:'])
+        await message.add_reaction(emoji_bank[':regional_indicator_j:'])
+        await message.add_reaction(emoji_bank[':regional_indicator_o:'])
+        await message.add_reaction(emoji_bank[':regional_indicator_i:'])
+        await message.add_reaction(emoji_bank[':regional_indicator_n:'])
         await message.add_reaction(emoji_bank[':twisted_rightwards_arrows:'])
-        await message.add_reaction(emoji_bank[':u7981:'])
+        await message.add_reaction(emoji_bank[':octagonal_sign:'])
 
         # Add to messages
         self.messages[message.id] = {}
@@ -171,7 +173,8 @@ class Random(commands.Cog):
             self.messages[message.id]['future'].cancel()
 
         embed = message.embeds[0]
-        desc = f"React below to join.\nClick {emoji_bank[':twisted_rightwards_arrows:']} to shuffle, {emoji_bank[':u7981:']} to stop.\n\n"
+        desc = f"React on {emoji_bank[':regional_indicator_j:']} {emoji_bank[':regional_indicator_o:']} {emoji_bank[':regional_indicator_i:']} {emoji_bank[':regional_indicator_n:']} below to join, unreact to leave.\n"
+        desc += f"Click {emoji_bank[':twisted_rightwards_arrows:']} to shuffle, {emoji_bank[':octagonal_sign:']} to stop.\n\n"
 
         # Add people
         if len(people) > 0:
