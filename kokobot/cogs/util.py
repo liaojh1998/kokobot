@@ -103,7 +103,11 @@ class Util(commands.Cog):
         name = str(member)
         avatar_url = str(member.avatar_url)
 
+<<<<<<< HEAD
         embed = discord.Embed(colour=2818026) # Aqua
+=======
+        embed = discord.Embed(colour=2818026)
+>>>>>>> a4046ee... Fixed util.py
         embed.set_author(name=name, icon_url=avatar_url)
         embed.set_image(url=avatar_url)
         sent = await ctx.send(embed=embed)
