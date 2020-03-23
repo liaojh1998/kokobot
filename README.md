@@ -3,7 +3,7 @@ An amazing, awesome, super cool Discord bot UT Austin SASE.
 
 ## TODO
 ### Taken
-- danielhcai: $avatar, see *danieldo or *todo for more details.
+- None
 
 ### Easy (discord.py, Python)
 - Koko: Sanitize string input to have a maximum length.
