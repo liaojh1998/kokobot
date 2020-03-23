@@ -109,7 +109,8 @@ class Koko(commands.Cog):
         Usage: *name
         """
         if (len(message.content) == 0
-                or message.content[0] != '*'):
+                or message.content[0] != '*'
+                or (message.author != self.bot.user and message.author.bot)):
             return
 
         if message.author == self.bot.user:

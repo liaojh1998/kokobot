@@ -4,7 +4,6 @@ An amazing, awesome, super cool Discord bot UT Austin SASE.
 ## TODO
 ### Easy (discord.py, Python)
 - Koko: Sanitize string input to have a maximum length.
-- Koko: Check if user message is bot that's not itself and ignore.
 - Koko: Allow for note chaining up to some number of notes (30 maybe?). BUT, avoid recursion.
 
 ### Medium (discord.py, Python, implementation stuff)
