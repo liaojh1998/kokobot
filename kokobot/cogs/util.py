@@ -87,6 +87,12 @@ class Util(commands.Cog):
         
     @commands.command()
     async def ava(self, ctx):
+        """ -- Get Avatar Image
+        Usage: $ava [user]
+
+        If no user, then get avatar of the message's author
+        """
+
         mentions = ctx.message.mentions
         
         if len(mentions) == 0:
@@ -97,7 +103,7 @@ class Util(commands.Cog):
         name = str(member)
         avatar_url = str(member.avatar_url)
 
-        embed = discord.Embed(colour=2818026)
+        embed = discord.Embed(colour=2818026) # Aqua
         embed.set_author(name=name, icon_url=avatar_url)
         embed.set_image(url=avatar_url)
         sent = await ctx.send(embed=embed)
