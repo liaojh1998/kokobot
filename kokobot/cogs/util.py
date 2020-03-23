@@ -2,6 +2,7 @@ import datetime
 import logging
 import typing
 
+import discord
 from discord.ext import commands
 from discord.ext.commands.errors import MissingRequiredArgument
 from discord.errors import Forbidden
@@ -73,7 +74,7 @@ class Util(commands.Cog):
                 if role.name in admin_role:
                     if ctx.message.author in role.members:
                         can_shutdown = True
-                        break;
+                        break
         # Shutdown
         if can_shutdown:
             sent = await ctx.send('Shutting down bot...')
@@ -83,3 +84,26 @@ class Util(commands.Cog):
             sent = await ctx.send('Cannot shutdown as {}'.format(ctx.message.author))
             await ctx.message.delete(delay=5)
             await sent.delete(delay=5)
+        
+    @commands.command()
+    async def ava(self, ctx):
+        """ -- Get Avatar Image
+        Usage: $ava [user]
+
+        If no user, then get avatar of the message's author
+        """
+
+        mentions = ctx.message.mentions
+        
+        if len(mentions) == 0:
+            member = ctx.message.author
+        else:
+            member = mentions.pop(0)
+
+        name = str(member)
+        avatar_url = str(member.avatar_url)
+
+        embed = discord.Embed(colour=2818026) # Aqua
+        embed.set_author(name=name, icon_url=avatar_url)
+        embed.set_image(url=avatar_url)
+        sent = await ctx.send(embed=embed)
