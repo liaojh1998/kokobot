@@ -121,6 +121,7 @@ class Koko(commands.Cog):
             sent = await message.channel.send('Empty name.')
             await sent.delete(delay=5)
             await message.delete(delay=5)
+            return
 
         try:
             c = self.conn.cursor()
