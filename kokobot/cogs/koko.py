@@ -116,10 +116,6 @@ class Koko(commands.Cog):
         lines = message.content.split('\n')
         for line in lines:
             if len(line) > 0 and line[0] == '*':
-                if message.author == self.bot.user:
-                    await message.channel.send('Cannot chain notes from Kokobot, sorry buddy!')
-                    return
-
                 name = line[1:]
                 if len(name) == 0:
                     sent = await message.channel.send('Empty name.')
@@ -136,6 +132,9 @@ class Koko(commands.Cog):
                         await message.channel.send('`*{}` does not exist.'.format(name))
                     else:
                         value = note[0]
+                        if message.author == self.bot.user and line == value:
+                            await message.channel.send('Cannot recursively call notes from Kokobot, sorry buddy!')
+                            return
                         await message.channel.send(value)
                 except sqlite3.Error as e:
                     logger.info('Database error: {}'.format(e))
