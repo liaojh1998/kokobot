@@ -2,8 +2,6 @@ import random as rng
 
 import discord
 
-logger = logging.getLogger('discord.kokobot.util')
-
 
 class Games(commands.Cog):
     """Games
