@@ -2,6 +2,9 @@
 An amazing, awesome, super cool Discord bot UT Austin SASE.
 
 ## TODO
+### Taken
+- danielhcai: $avatar, see *danieldo or *todo for more details.
+
 ### Easy (discord.py, Python)
 - Koko: Sanitize string input to have a maximum length.
 - Koko: Allow for note chaining up to some number of notes (30 maybe?). BUT, avoid recursion.
