@@ -33,6 +33,9 @@ class Random(commands.Cog):
         self.bot.add_listener(self.react, 'on_reaction_add')
         self.bot.add_listener(self.unreact, 'on_reaction_remove')
 
+    def __str__(self):
+        return 'kokobot.cogs.Random'
+
     async def on_ready(self):
         self.owner = self.bot.get_user(self.bot.owner_id)
 
