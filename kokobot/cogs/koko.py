@@ -107,39 +107,42 @@ class Koko(commands.Cog):
     async def get(self, message):
         """ -- Get an added note.
         Usage: *name
+
+        You can add multiple in one message by adding each in a different line.
         """
-        if (len(message.content) == 0
-                or message.content[0] != '*'
-                or (message.author != self.bot.user and message.author.bot)):
+        if message.author != self.bot.user and message.author.bot:
             return
 
-        if message.author == self.bot.user:
-            await message.channel.send('Cannot chain notes from Kokobot, sorry buddy!')
-            return
+        lines = message.content.split('\n')
+        for line in lines:
+            if len(line) > 0 and line[0] == '*':
+                if message.author == self.bot.user:
+                    await message.channel.send('Cannot chain notes from Kokobot, sorry buddy!')
+                    return
 
-        name = message.content[1:]
-        if len(name) == 0:
-            sent = await message.channel.send('Empty name.')
-            await sent.delete(delay=5)
-            await message.delete(delay=5)
-            return
+                name = line[1:]
+                if len(name) == 0:
+                    sent = await message.channel.send('Empty name.')
+                    await sent.delete(delay=5)
+                    await message.delete(delay=5)
+                    return
 
-        try:
-            c = self.conn.cursor()
-            c.execute(f'SELECT value FROM {self.config["table_name"]} WHERE name=(?) LIMIT 1', (name,))
-            note = c.fetchone()
-            self.conn.commit()
-            if note is None:
-                await message.channel.send('`*{}` does not exist.'.format(name))
-            else:
-                value = note[0]
-                await message.channel.send(value)
-        except sqlite3.Error as e:
-            logger.info('Database error: {}'.format(e))
-            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
-        except Exception as e:
-            logger.info('Python error: {}'.format(e))
-            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+                try:
+                    c = self.conn.cursor()
+                    c.execute(f'SELECT value FROM {self.config["table_name"]} WHERE name=(?) LIMIT 1', (name,))
+                    note = c.fetchone()
+                    self.conn.commit()
+                    if note is None:
+                        await message.channel.send('`*{}` does not exist.'.format(name))
+                    else:
+                        value = note[0]
+                        await message.channel.send(value)
+                except sqlite3.Error as e:
+                    logger.info('Database error: {}'.format(e))
+                    await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+                except Exception as e:
+                    logger.info('Python error: {}'.format(e))
+                    await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     @koko.command()
     async def remove(self, ctx, *, name):
