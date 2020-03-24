@@ -7,7 +7,6 @@ An amazing, awesome, super cool Discord bot UT Austin SASE.
 
 ### Easy (discord.py, Python)
 - Koko: Sanitize string input to have a maximum length.
-- Koko: Allow for note chaining up to some number of notes (30 maybe?). BUT, avoid recursion.
 
 ### Medium (discord.py, Python, implementation stuff)
 - Koko: `$koko modify` instead `$koko remove` first then `$koko add`.

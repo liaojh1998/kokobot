@@ -30,12 +30,12 @@ class Koko(commands.Cog):
         }
 
         self.bot = bot
+        self.messages = {}
         self.bot.add_listener(self.on_ready, 'on_ready')
         self.bot.add_listener(self.setup, 'on_connect')
         self.bot.add_listener(self.setup, 'on_resume')
         self.bot.add_listener(self.teardown, 'on_disconnect')
         self.bot.add_listener(self.get, 'on_message')
-        self.messages = {}
         self.bot.add_listener(self.react, 'on_reaction_add')
 
     def __str__(self):
@@ -108,40 +108,52 @@ class Koko(commands.Cog):
         """ -- Get an added note.
         Usage: *name
 
-        You can add multiple in one message by adding each in a different line.
+        Only 1 per message, and this command must be on the last line.
         """
         if message.author != self.bot.user and message.author.bot:
             return
 
+        # Last line
         lines = message.content.split('\n')
-        for line in lines:
-            if len(line) > 0 and line[0] == '*':
-                name = line[1:]
-                if len(name) == 0:
-                    sent = await message.channel.send('Empty name.')
-                    await sent.delete(delay=5)
-                    await message.delete(delay=5)
+        if len(lines) > 0 and len(lines[-1]) > 0 and lines[-1][0] == '*':
+            name = lines[-1][1:]
+            if len(name) == 0:
+                sent = await message.channel.send('Empty name.')
+                await sent.delete(delay=5)
+                await message.delete(delay=5)
+                return
+
+            # Avoid chaining 10 times from kokobot
+            if message.author == self.bot.user:
+                if message.nonce >= 10:
+                    await message.channel.send('Cannot chain more than 10 messages from kokobot.')
                     return
 
-                try:
-                    c = self.conn.cursor()
-                    c.execute(f'SELECT value FROM {self.config["table_name"]} WHERE name=(?) LIMIT 1', (name,))
-                    note = c.fetchone()
-                    self.conn.commit()
-                    if note is None:
-                        await message.channel.send('`*{}` does not exist.'.format(name))
-                    else:
-                        value = note[0]
-                        if message.author == self.bot.user and line == value:
-                            await message.channel.send('Cannot recursively call notes from Kokobot, sorry buddy!')
-                            return
-                        await message.channel.send(value)
-                except sqlite3.Error as e:
-                    logger.info('Database error: {}'.format(e))
-                    await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
-                except Exception as e:
-                    logger.info('Python error: {}'.format(e))
-                    await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+            try:
+                # Get note and send it
+                c = self.conn.cursor()
+                c.execute(f'SELECT value FROM {self.config["table_name"]} WHERE name=(?) LIMIT 1', (name,))
+                note = c.fetchone()
+                self.conn.commit()
+                if note is None:
+                    await message.channel.send('`*{}` does not exist.'.format(name))
+                else:
+                    value = note[0]
+
+                    # Store chaining from kokobot
+                    chains = 1
+                    lines = value.split('\n')
+                    if len(lines) > 0 and len(lines[-1]) > 0 and lines[-1][0] == '*':
+                        if message.author == self.bot.user:
+                            chains = message.nonce + 1
+
+                    sent = await message.channel.send(content=value, nonce=chains)
+            except sqlite3.Error as e:
+                logger.info('Database error: {}'.format(e))
+                await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+            except Exception as e:
+                logger.info('Python error: {}'.format(e))
+                await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     @koko.command()
     async def remove(self, ctx, *, name):
