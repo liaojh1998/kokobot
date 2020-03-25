@@ -30,10 +30,10 @@ class Koko(commands.Cog):
         }
 
         self.bot = bot
-        self.messages = {}
+        self.conn = None
         self.bot.add_listener(self.on_ready, 'on_ready')
         self.bot.add_listener(self.setup, 'on_connect')
-        self.bot.add_listener(self.setup, 'on_resume')
+        self.bot.add_listener(self.setup, 'on_resumed')
         self.bot.add_listener(self.teardown, 'on_disconnect')
         self.bot.add_listener(self.get, 'on_message')
         self.bot.add_listener(self.react, 'on_reaction_add')
@@ -43,6 +43,8 @@ class Koko(commands.Cog):
 
     async def setup(self):
         logger.info("Beginning connection to sqlite...")
+        if not self.conn is None:
+            self.conn.close()
         self.conn = sqlite3.connect('kokobot.db')
 
         # Create table if it doesn't exist
@@ -58,7 +60,8 @@ class Koko(commands.Cog):
 
     async def teardown(self):
         logger.info("Closing connection to sqlite...")
-        self.conn.close()
+        if not self.conn is None:
+            self.conn.close()
 
     async def on_ready(self):
         self.owner = self.bot.get_user(self.bot.owner_id)
@@ -97,6 +100,9 @@ class Koko(commands.Cog):
     async def add_error(self, ctx, error):
         if isinstance(error, MissingRequiredArgument):
             await ctx.send('Invalid arguments for `$koko add`, use `$help koko add` for more information.')
+        elif isinstance(error, sqlite3.ProgrammingError):
+            logger.info('Database error: {}'.format(error))
+            await ctx.send('Database closed, {} pls fix.'.format(self.owner.mention))
         elif isinstance(error.original, sqlite3.Error):
             logger.info('Database error: {}'.format(error))
             await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
@@ -148,12 +154,15 @@ class Koko(commands.Cog):
                             chains = message.nonce + 1
 
                     sent = await message.channel.send(content=value, nonce=chains)
+            except sqlite3.ProgrammingError as e:
+                logger.info('Database error: {}'.format(e))
+                await message.channel.send('Database closed, {} pls fix.'.format(self.owner.mention))
             except sqlite3.Error as e:
                 logger.info('Database error: {}'.format(e))
-                await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+                await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
             except Exception as e:
                 logger.info('Python error: {}'.format(e))
-                await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+                await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     @koko.command()
     async def remove(self, ctx, *, name):
@@ -182,6 +191,9 @@ class Koko(commands.Cog):
     async def remove_error(self, ctx, error):
         if isinstance(error, MissingRequiredArgument):
             await ctx.send('Invalid arguments for `$koko remove/delete`, use `$help koko remove/delete` for more information.')
+        elif isinstance(error, sqlite3.ProgrammingError):
+            logger.info('Database error: {}'.format(error))
+            await ctx.send('Database closed, {} pls fix.'.format(self.owner.mention))
         elif isinstance(error, sqlite3.Error):
             logger.info('Database error: {}'.format(error))
             await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
@@ -251,6 +263,9 @@ class Koko(commands.Cog):
     async def who_error(self, ctx, error):
         if isinstance(error, MissingRequiredArgument):
             await ctx.send('Invalid arguments for `$koko who`, use `$help koko who` for more information.')
+        elif isinstance(error, sqlite3.ProgrammingError):
+            logger.info('Database error: {}'.format(error))
+            await ctx.send('Database closed, {} pls fix.'.format(self.owner.mention))
         elif isinstance(error.original, sqlite3.Error):
             logger.info('Database error: {}'.format(error))
             await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
@@ -337,6 +352,9 @@ class Koko(commands.Cog):
                 future = asyncio.Future()
                 asyncio.ensure_future(self.clear_message(future, message))
                 self.messages[message.id]['future'] = future
+        except sqlite3.ProgrammingError as e:
+            logger.info('Database error: {}'.format(e))
+            await message.channel.send('Database closed, {} pls fix.'.format(self.owner.mention))
         except sqlite3.Error as e:
             logger.info('Database error: {}'.format(e))
             await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
@@ -411,6 +429,9 @@ class Koko(commands.Cog):
                 future = asyncio.Future()
                 asyncio.ensure_future(self.clear_message(future, message))
                 self.messages[message.id]['future'] = future
+        except sqlite3.ProgrammingError as e:
+            logger.info('Database error: {}'.format(e))
+            await message.channel.send('Database closed, {} pls fix.'.format(self.owner.mention))
         except sqlite3.Error as e:
             logger.info('Database error: {}'.format(e))
             await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
