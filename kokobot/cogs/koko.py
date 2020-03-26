@@ -31,6 +31,7 @@ class Koko(commands.Cog):
 
         self.bot = bot
         self.conn = None
+        self.messages = {}
         self.bot.add_listener(self.on_ready, 'on_ready')
         self.bot.add_listener(self.setup, 'on_connect')
         self.bot.add_listener(self.setup, 'on_resumed')
@@ -73,7 +74,7 @@ class Koko(commands.Cog):
         Use $help koko <command> for more information.
         """
         if ctx.invoked_subcommand is None:
-            await ctx.send('Use `$help koko` for more information')
+            await ctx.send('Use `$help koko` for more information.')
 
     @koko.command()
     async def add(self, ctx, name, *, note):
