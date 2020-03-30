@@ -1,0 +1,6 @@
+[submodule "emoji"]
+	path = emoji
+	url = git@github.com:carpedm20/emoji.git
+[submodule "kokobot/cogs/data/emoji"]
+	path = kokobot/cogs/data/emoji
+	url = git@github.com:carpedm20/emoji.git
