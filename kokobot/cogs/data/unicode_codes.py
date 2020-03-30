@@ -1,1 +1,0 @@
-emoji/emoji/unicode_codes.py
