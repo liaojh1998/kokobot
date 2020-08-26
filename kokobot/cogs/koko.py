@@ -122,7 +122,7 @@ class Koko(commands.Cog):
 
         # Last line
         lines = message.content.split('\n')
-        if len(lines) > 0 and len(lines[-1]) > 0 and lines[-1][0] == '*':
+        if len(lines) > 0 and len(lines[-1]) > 0 and lines[-1][0] == '*' and lines[-1].count('*') == 1:
             name = lines[-1][1:]
             if len(name) == 0:
                 sent = await message.channel.send('Empty name.')
