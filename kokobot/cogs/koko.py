@@ -217,6 +217,8 @@ class Koko(commands.Cog):
     async def clear_message(self, future, message):
         await asyncio.sleep(60)
         if not future.cancelled():
+            # FIXME: clear reactions for DMs are unattainable because
+            # 'manage_messages' permission cannot be attained for all DMs
             await message.clear_reactions()
             self.messages.pop(message.id)
 
@@ -290,6 +292,8 @@ class Koko(commands.Cog):
         # Cleanup of previous message
         if message.id in self.messages:
             self.messages[message.id]['future'].cancel()
+        # FIXME: clear reactions for DMs are unattainable because
+        # 'manage_messages' permission cannot be attained for all DMs
         await message.clear_reactions()
 
         try:
@@ -377,6 +381,8 @@ class Koko(commands.Cog):
         # Cleanup of previous message
         if message.id in self.messages:
             self.messages[message.id]['future'].cancel()
+        # FIXME: clear reactions for DMs are unattainable because
+        # 'manage_messages' permission cannot be attained for all DMs
         await message.clear_reactions()
 
         try:
