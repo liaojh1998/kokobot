@@ -135,7 +135,7 @@ class Util(commands.Cog):
             await ctx.send(f'{author.mention} do not have permissions to purge.')
             return
         if count > 100:  # Limit purge count
-            await ctx.send('You can only purge up to 100 messages at a time.')
+            await ctx.send(f'{author.mention}, you can only purge up to 100 messages at a time.')
             return
         messages = await ctx.channel.purge(limit=count)
         sent = await ctx.send(f'Purged {len(messages)} of the {count} messages requested by {author.mention}.')
