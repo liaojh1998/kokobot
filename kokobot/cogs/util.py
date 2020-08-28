@@ -109,7 +109,7 @@ class Util(commands.Cog):
         sent = await ctx.send(embed=embed)
 
     @commands.command()
-    async def purge(self, ctx, count):
+    async def purge(self, ctx, count: int):
         """ -- Purge past messages
         Usage: $purge <count>
 
@@ -117,7 +117,23 @@ class Util(commands.Cog):
         the channel, excluding the command message. However,
         the command message will be deleted as well.
         """
+        # admins
+        admin_role = ['bot boi', 'admin uwu', 'Officers']
 
-        channel = ctx.channel
-        channel.purge(limit=count+1)  # Including the purge command
-        sent = await ctx.send(f'{ctx.author} purged {count} messages.')
+        # Check for permission to purge
+        author = ctx.message.author
+        can_purge = await ctx.bot.is_owner(author)
+        if not can_purge:
+            for role in ctx.channel.guild.roles:
+                if role.name in admin_role:
+                    if ctx.message.author in role.members:
+                        can_purge = True
+
+        # Purge
+        await ctx.message.delete()  # Delete the purge command first
+        if not can_purge:
+            await ctx.send(f'{author.mention} do not have permissions to purge.')
+            return
+        messages = await ctx.channel.purge(limit=count)
+        sent = await ctx.send(f'Purged {len(messages)} of the {count} messages requested by {author.mention}.')
+        logger.info(f'Purged {len(messages)} of the {count} messages requested by {author}')
