@@ -84,7 +84,7 @@ class Util(commands.Cog):
             sent = await ctx.send('Cannot shutdown as {}'.format(ctx.message.author))
             await ctx.message.delete(delay=5)
             await sent.delete(delay=5)
-        
+
     @commands.command()
     async def ava(self, ctx):
         """ -- Get Avatar Image
@@ -94,7 +94,7 @@ class Util(commands.Cog):
         """
 
         mentions = ctx.message.mentions
-        
+
         if len(mentions) == 0:
             member = ctx.message.author
         else:
@@ -107,3 +107,17 @@ class Util(commands.Cog):
         embed.set_author(name=name, icon_url=avatar_url)
         embed.set_image(url=avatar_url)
         sent = await ctx.send(embed=embed)
+
+    @commands.command()
+    async def purge(self, ctx, count):
+        """ -- Purge past messages
+        Usage: $purge <count>
+
+        Delete the past `count` amount of messages in
+        the channel, excluding the command message. However,
+        the command message will be deleted as well.
+        """
+
+        channel = ctx.channel
+        channel.purge(limit=count+1)  # Including the purge command
+        sent = await ctx.send(f'{ctx.author} purged {count} messages.')
