@@ -326,7 +326,7 @@ class Koko(commands.Cog):
             desc = None
             if count > 0:
                 desc = '\n'.join(['*' + _[0] for _ in results])
-            embed = discord.Embed(title=title, description=desc, colour=2818026) # Aqua
+            embed = discord.Embed(title=title, description=desc, colour=2818026)  # Aqua
             actual_page = page + 1
             if count == 0:
                 actual_page = 0
@@ -405,7 +405,7 @@ class Koko(commands.Cog):
             desc = None
             if count > 0:
                 desc = '\n'.join(['*' + _[0] for _ in results])
-            embed = discord.Embed(title=title, description=desc, colour=16761035) # Pink
+            embed = discord.Embed(title=title, description=desc, colour=16761035)  # Pink
             actual_page = page + 1
             if count == 0:
                 actual_page = 0

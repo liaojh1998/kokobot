@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import logging
 import typing
@@ -8,16 +9,48 @@ from discord.ext.commands.errors import MissingRequiredArgument
 from discord.errors import Forbidden
 
 logger = logging.getLogger('discord.kokobot.util')
+emoji_bank = {
+    ':left_arrow:': '\U00002B05',
+    ':right_arrow:': '\U000027A1',
+}
 
 
 class Util(commands.Cog):
     """Utility commands
     """
     def __init__(self, bot):
+        self.messages = {}
         self.bot = bot
+        self.bot.add_listener(self.on_ready, 'on_ready')
+        self.bot.add_listener(self.react, 'on_reaction_add')
 
     def __str__(self):
         return 'kokobot.cogs.Util'
+
+    async def on_ready(self):
+        self.owner = self.bot.get_user(self.bot.owner_id)
+
+    async def react(self, reaction, user):
+        if (user == self.bot.user
+                or not reaction.emoji in (emoji_bank[':left_arrow:'], emoji_bank[':right_arrow:'])
+                or not reaction.message.id in self.messages):
+            return
+
+        # Get new page number
+        message_id = reaction.message_id
+        page = self.messages[message_id]['page']
+        if reaction.emoji == emoji_bank[':left_arrow:']:
+            page -= 1
+            if page < 0:
+                page = 0
+        if reaction.emoji == emoji_bank[':right_arrow:']:
+            page += 1
+
+        # Reset message
+        await self.list_users(self.messages[message_id]['message'],
+                              self.messages[message_id]['user']
+                              page,
+                              self.messages[message_id]['members'])
 
     @commands.command()
     async def nick(self, ctx, *, nickname: str=""):
@@ -140,3 +173,94 @@ class Util(commands.Cog):
         messages = await ctx.channel.purge(limit=count)
         sent = await ctx.send(f'Purged {len(messages)} of the {count} messages requested by {author.mention}.')
         logger.info(f'Purged {len(messages)} of the {count} messages requested by {author}')
+
+    @commands.command()
+    async def users(self, ctx):
+        """ -- List all users and their join date.
+
+        Prints all users and their join date, sorted by date they joined.
+        This command fails if there are more than 500 users.
+        """
+
+        try:
+            message = await ctx.send('Listing users...')
+            guild = ctx.guild
+            members = await guild.fetch_members(limit=500).flatten()
+            sorted(members, key=lambda member: member.joined_at)
+            await self.list_users(message, ctx.author, 0, members)
+        except Exception as e:
+            logger.info('Python error: {}'.format(e))
+            await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
+
+    async def clear_message(self, future, message):
+        await asyncio.sleep(60)
+        if not future.cancelled():
+            # FIXME: clear reactions for DMs are unattainable because
+            # 'manage_messages' permission cannot be attained for all DMs
+            await message.clear_reactions()
+            self.messages.pop(message.id)
+
+    async def list_users(self, message, user, page, members)
+        # Cleanup of previous message
+        if message.id in self.messages:
+            self.messages[message.id]['future'].cancel()
+        # FIXME: clear reactions for DMs are unattainable because
+        # 'manage_messages' permission cannot be attained for all DMs
+        await message.clear_reactions()
+
+        MEMBERS = 10  # members to display per page
+        pages = len(members) / MEMBERS
+        if len(members) % MEMBERS > 0:
+            pages += 1
+        # make sure page is within limit
+        if page < 0:
+            page = 0
+        if page > pages - 1:
+            page = pages - 1
+
+        try:
+            title = "List of users and their join date, as requested by {}".format(user)
+            req = members[page*MEMBERS:(page+1)*MEMBERS]
+            desc = None
+            if len(req) > 0:
+                desc = ""
+                for i in range(len(req)):
+                    m = req[i]
+                    timestr = ": UNKNOWN"
+                    if not m.joined_at is None:
+                        timestr = ": " + m.joined_at.strftime("%m-%d-%Y")
+                    desc += f"{pa%m/%d/%Yge*10 + i + 1}. {m.nick} ({m})" + timestr + "\n"
+            embed = discord.Embed(title=title, description=desc, colour=65280)  # Green
+            actual_page = page + 1
+            if pages == 0:
+                actual_page = 0
+            embed.set_footer(text=f"Page {actual_page} of {pages}")
+
+            # Edit the message
+            await message.edit(content=None, embed=embed)
+            logger.info('Sent users page {} of {} for "{}"'.format(actual_page, pages, user))
+
+            # React to the message
+            has_more = False
+            if actual_page > 1:
+                has_more = True
+                await message.add_reaction(emoji_bank[':left_arrow:'])
+            if actual_page < pages:
+                has_more = True
+                await message.add_reaction(emoji_bank[':right_arrow:'])
+
+            if has_more:
+                # Add message to messages dict
+                self.messages[message.id] = {}
+                self.messages[message.id]['message'] = message
+                self.messages[message.id]['user'] = user
+                self.messages[message.id]['page'] = page
+                self.messages[message.id]['members'] = members
+
+                # Schedule a future clear of message
+                future = asyncio.Future()
+                asyncio.ensure_future(self.clear_message(future, message))
+                self.messages[message.id]['future'] = future
+        except Exception as e:
+            logger.info('Python error: {}'.format(e))
+            await message.channel.send('Bot error, {} pls fix!'.format(self.owner.mention))
