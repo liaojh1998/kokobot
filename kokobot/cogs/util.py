@@ -36,8 +36,10 @@ class Util(commands.Cog):
                 or not reaction.message.id in self.messages):
             return
 
+        logger.info("YO YO YO I GOT PAST THO")
+
         # Get new page number
-        message_id = reaction.message_id
+        message_id = reaction.message.id
         page = self.messages[message_id]['page']
         if reaction.emoji == emoji_bank[':left_arrow:']:
             page -= 1
@@ -48,7 +50,7 @@ class Util(commands.Cog):
 
         # Reset message
         await self.list_users(self.messages[message_id]['message'],
-                              self.messages[message_id]['user']
+                              self.messages[message_id]['user'],
                               page,
                               self.messages[message_id]['members'])
 
@@ -186,21 +188,21 @@ class Util(commands.Cog):
             message = await ctx.send('Listing users...')
             guild = ctx.guild
             members = await guild.fetch_members(limit=500).flatten()
-            sorted(members, key=lambda member: member.joined_at)
+            members = sorted(members, key=lambda member: member.joined_at)
             await self.list_users(message, ctx.author, 0, members)
         except Exception as e:
             logger.info('Python error: {}'.format(e))
             await ctx.send('Bot error, {} pls fix!'.format(self.owner.mention))
 
     async def clear_message(self, future, message):
-        await asyncio.sleep(60)
+        await asyncio.sleep(120)
         if not future.cancelled():
             # FIXME: clear reactions for DMs are unattainable because
             # 'manage_messages' permission cannot be attained for all DMs
             await message.clear_reactions()
             self.messages.pop(message.id)
 
-    async def list_users(self, message, user, page, members)
+    async def list_users(self, message, user, page, members):
         # Cleanup of previous message
         if message.id in self.messages:
             self.messages[message.id]['future'].cancel()
@@ -209,7 +211,7 @@ class Util(commands.Cog):
         await message.clear_reactions()
 
         MEMBERS = 10  # members to display per page
-        pages = len(members) / MEMBERS
+        pages = len(members) // MEMBERS
         if len(members) % MEMBERS > 0:
             pages += 1
         # make sure page is within limit
@@ -226,10 +228,13 @@ class Util(commands.Cog):
                 desc = ""
                 for i in range(len(req)):
                     m = req[i]
-                    timestr = ": UNKNOWN"
+                    timestr = "UNKNOWN: "
                     if not m.joined_at is None:
-                        timestr = ": " + m.joined_at.strftime("%m-%d-%Y")
-                    desc += f"{pa%m/%d/%Yge*10 + i + 1}. {m.nick} ({m})" + timestr + "\n"
+                        timestr = m.joined_at.strftime("%m-%d-%Y") + ": "
+                    nick = ""
+                    if m.nick:
+                        nick = f" ({m.nick})"
+                    desc += f"{page*10 + i + 1}. " + timestr + f"{m}{nick}" + "\n"
             embed = discord.Embed(title=title, description=desc, colour=65280)  # Green
             actual_page = page + 1
             if pages == 0:
