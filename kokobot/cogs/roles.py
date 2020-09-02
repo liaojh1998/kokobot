@@ -10,6 +10,7 @@ emoji_bank = {
     ':hatching_chick:': '\U0001F423',
     ':zany_face:': '\U0001F92A',
     ':innocent:': '\U0001F607',
+    ':star2:': '\U0001F31F',
 }
 
 
@@ -24,18 +25,20 @@ class Roles(commands.Cog):
         # Config
         self.config = {
             'channel': 'roles',
-            'family_roles': {
-                'E-Fam': emoji_bank[':woozy_face:'],
-                'Gus\'s Chicken Coop Fam': emoji_bank[':hatching_chick:'],
-                'JK Fam': emoji_bank[':zany_face:'],
-                'Wholesome Fam': emoji_bank[':innocent:'],
+            'emoji_roles': {
+                "Members": emoji_bank[':star2:'],
+                # 'E-Fam': emoji_bank[':woozy_face:'],
+                # 'Gus\'s Chicken Coop Fam': emoji_bank[':hatching_chick:'],
+                # 'JK Fam': emoji_bank[':zany_face:'],
+                # 'Wholesome Fam': emoji_bank[':innocent:'],
             },
             'invalid_roles': [
-                '@everyone', 'kokobot', 'bot boi', 'AI', 'admin uwu',
-                'Officers', 'Quaranteens', 'MEE6', 'Kulture Korner',
+                '@everyone', 'kokobot', 'bot boi', 'AI', 'Ascended Admin',
+                'Officers', 'Removal', 'MEE6', 'Kulture Korner',
+                'OG Server Creator :)',
             ],
         }
-        self.config['invalid_roles'].extend(self.config['family_roles'])
+        self.config['invalid_roles'].extend(self.config['emoji_roles'])
 
         # Initialize
         self.bot = bot
@@ -116,18 +119,19 @@ class EmojiRoles(commands.Cog):
         # Setup roles
         self.channel_info[channel.id]['roles'] = {}
         for role in channel.guild.roles:
-            for family_role, emoji in self.config['family_roles'].items():
-                if family_role in role.name:
+            for emoji_role, emoji in self.config['emoji_roles'].items():
+                if  emoji_role in role.name:
                     self.channel_info[channel.id]['roles'][emoji] = role
                     break
 
         if self.channel_info[channel.id]['roles']:
             # Send help string
-            help_str = 'Families :smiling_face_with_3_hearts::\n'
-            for emoji, role in self.channel_info[channel.id]['roles'].items():
-                help_str += '\t\t* {}\n'.format(role.name)
-            help_str += '\n'
-            help_str += 'React an emoji to join a family, unreact an emoji to leave a family:\n'
+            help_str = 'Hello! :smiling_face_with_3_hearts:\n'
+            # for emoji, role in self.channel_info[channel.id]['roles'].items():
+            #     help_str += '\t\t* {}\n'.format(role.name)
+            # help_str += '\n'
+            help_str += 'React to become a member, unreact to become stray:\n'
+            # help_str += 'React an emoji to join a family, unreact an emoji to leave a family:\n'
             self.channel_info[channel.id]['message'] = await channel.send(help_str)
 
             # React to the message
