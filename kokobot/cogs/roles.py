@@ -35,7 +35,7 @@ class Roles(commands.Cog):
             'invalid_roles': [
                 '@everyone', 'kokobot', 'bot boi', 'AI', 'Ascended Admin',
                 'Officers', 'Removal', 'MEE6', 'Kulture Korner',
-                'OG Server Creator :)',
+                'OG Server Creator :)', 'Old officers', 'Server Booster',
             ],
         }
         self.config['invalid_roles'].extend(self.config['emoji_roles'])
