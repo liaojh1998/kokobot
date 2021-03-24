@@ -10,7 +10,6 @@ An amazing, awesome, super cool Discord bot UT Austin SASE.
 
 ### Medium (discord.py, Python, implementation stuff)
 - Koko: `$koko modify` instead of `$koko remove` first then `$koko add`.
-- Fix `$users` command.
 - Improve the `$help` messages (that is, make `$help koko` the same as `$koko help`).
 - Add emoji create, delete, list, and search.
 
