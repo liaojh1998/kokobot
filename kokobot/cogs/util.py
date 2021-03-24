@@ -187,7 +187,7 @@ class Util(commands.Cog):
         try:
             message = await ctx.send('Listing users...')
             guild = ctx.guild
-            members = await guild.fetch_members(limit=500).flatten()
+            members = await guild.fetch_members(limit=None).flatten()
             members = sorted(members, key=lambda member: member.joined_at)
             await self.list_users(message, ctx.author, 0, members)
         except Exception as e:

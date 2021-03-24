@@ -37,10 +37,9 @@ def run(
     custom_cogs=[],
 ):
     logger = setup_logging()
-    bot = commands.Bot(command_prefix='$', description="Kokobot for UT Austin SASE", owner_id=owner_id)
-    permissions = discord.Permissions(permissions=0)
 
     # requested permissions
+    permissions = discord.Permissions(permissions=0)
     permissions.manage_roles = True
     permissions.manage_nicknames = True
     permissions.manage_emojis = True
@@ -54,6 +53,18 @@ def run(
     permissions.use_external_emojis = True
     permissions.add_reactions = True
     permissions.connect = True
+
+    # requested intents
+    intents = discord.Intents.default()
+    intents.typing = False
+    intents.presences = False
+    intents.members = True
+    intents.messages = True
+    intents.guilds = True
+    intents.reactions = True
+
+    bot = commands.Bot(command_prefix='$', description="Kokobot for UT Austin SASE",
+                       intents=intents, owner_id=owner_id)
 
     # append cogs
     default_cogs = [
