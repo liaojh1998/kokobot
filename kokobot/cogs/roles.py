@@ -105,6 +105,10 @@ class Roles(commands.Cog):
                 if ('message' in self.emoji_roles_bot.channel_info[channel]
                         and not self.emoji_roles_bot.channel_info[channel]['message'] is None):
                     message_ids.append(self.emoji_roles_bot.channel_info[channel]['message'].id)
+            for channel in self.gender_roles_bot.channel_info:
+                if ('message' in self.gender_roles_bot.channel_info[channel]
+                        and not self.gender_roles_bot.channel_info[channel]['message'] is None):
+                    message_ids.append(self.gender_roles_bot.channel_info[channel]['message'].id)
             for channel in self.text_roles_bot.channel_info:
                 if ('message' in self.text_roles_bot.channel_info[channel]
                         and not self.text_roles_bot.channel_info[channel]['message'] is None):
