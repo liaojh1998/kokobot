@@ -9,6 +9,9 @@ emoji_bank = {
     ':woozy_face:': '\U0001F974',
     ':hatching_chick:': '\U0001F423',
     ':zany_face:': '\U0001F92A',
+    ':partying_face:': '\U0001F973',
+    ':nerd_face:': '\U0001F913',
+    ':sunglasses:': '\U0001F60E',
     ':innocent:': '\U0001F607',
 
     ':male_sign:': '\U00002642',
@@ -37,6 +40,12 @@ class Roles(commands.Cog):
                 "Alumni": emoji_bank[':mortar_board:'],
                 "External Being": emoji_bank[':star2:'],
             },
+            'year_roles': {
+                "Freshman": emoji_bank[':partying_face:'],
+                "Sophomore": emoji_bank[':zany_face:'],
+                "Junior": emoji_bank[':nerd_face:'],
+                "Senior": emoji_bank[':sunglasses:'],
+            },
             'gender_roles': {
                 "He/Him": emoji_bank[':male_sign:'],
                 "She/Her": emoji_bank[':female_sign:'],
@@ -50,10 +59,12 @@ class Roles(commands.Cog):
             ],
         }
         self.config['invalid_roles'].extend(self.config['emoji_roles'])
+        self.config['invalid_roles'].extend(self.config['year_roles'])
         self.config['invalid_roles'].extend(self.config['gender_roles'])
 
         # Role Messages
         emoji_role_message = 'React if you are an:\n'
+        year_role_message = 'React if you are a:\n'
         gender_role_message = ('\nUse these roles below to help others on the server to identify you.\n'
                                'Feel free to contact the officers for any questions, comments, or concerns!\n')
 
@@ -61,6 +72,7 @@ class Roles(commands.Cog):
         self.bot = bot
         self.hello_ids = []
         self.emoji_roles_bot = EmojiRoles(bot, self.config, 'emoji_roles', emoji_role_message)
+        self.year_roles_bot = EmojiRoles(bot, self.config, 'year_roles', year_role_message)
         self.gender_roles_bot = EmojiRoles(bot, self.config, 'gender_roles', gender_role_message)
         self.text_roles_bot = TextRoles(bot, self.config)
         self.bot.add_cog(self.emoji_roles_bot)
@@ -88,6 +100,7 @@ class Roles(commands.Cog):
 
         # Ready other role bots
         await self.emoji_roles_bot.on_ready(self.channels)
+        await self.year_roles_bot.on_ready(self.channels)
         await self.gender_roles_bot.on_ready(self.channels)
         await self.text_roles_bot.on_ready(self.channels)
 
@@ -105,6 +118,10 @@ class Roles(commands.Cog):
                 if ('message' in self.emoji_roles_bot.channel_info[channel]
                         and not self.emoji_roles_bot.channel_info[channel]['message'] is None):
                     message_ids.append(self.emoji_roles_bot.channel_info[channel]['message'].id)
+            for channel in self.year_roles_bot.channel_info:
+                if ('message' in self.year_roles_bot.channel_info[channel]
+                        and not self.year_roles_bot.channel_info[channel]['message'] is None):
+                    message_ids.append(self.year_roles_bot.channel_info[channel]['message'].id)
             for channel in self.gender_roles_bot.channel_info:
                 if ('message' in self.gender_roles_bot.channel_info[channel]
                         and not self.gender_roles_bot.channel_info[channel]['message'] is None):
