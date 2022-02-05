@@ -22,6 +22,8 @@ emoji_bank = {
     ':metal:': '\U0001F918',
     ':star2:': '\U0001F31F',
     ':mortar_board:': '\U0001F393',
+
+    ':sparkler:': '\U0001F387',
 }
 
 
@@ -52,6 +54,9 @@ class Roles(commands.Cog):
                 "They/Them": emoji_bank[':transgender_symbol:'],
                 "Ask My Gender": emoji_bank[':rainbow_flag:'],
             },
+            'eweek_roles': {
+                "eweek": emoji_bank[':sparkler:'],
+            },
             'invalid_roles': [
                 '@everyone', 'kokobot', 'bot boi', 'AI', 'Ascended Admin',
                 'Officers', 'Removal', 'MEE6', 'Kulture Korner',
@@ -61,12 +66,14 @@ class Roles(commands.Cog):
         self.config['invalid_roles'].extend(self.config['emoji_roles'])
         self.config['invalid_roles'].extend(self.config['year_roles'])
         self.config['invalid_roles'].extend(self.config['gender_roles'])
+        self.config['invalid_roles'].extend(self.config['eweek_roles'])
 
         # Role Messages
         emoji_role_message = 'React if you are an:\n'
         year_role_message = 'React if you are a:\n'
         gender_role_message = ('\nUse these roles below to help others on the server to identify you.\n'
                                'Feel free to contact the officers for any questions, comments, or concerns!\n')
+        eweek_role_message = 'React to this role if you wanna participate in E-Week:\n'
 
         # Initialize
         self.bot = bot
@@ -74,6 +81,7 @@ class Roles(commands.Cog):
         self.emoji_roles_bot = EmojiRoles(bot, self.config, 'emoji_roles', emoji_role_message)
         self.year_roles_bot = EmojiRoles(bot, self.config, 'year_roles', year_role_message)
         self.gender_roles_bot = EmojiRoles(bot, self.config, 'gender_roles', gender_role_message)
+        self.eweek_roles_bot = EmojiRoles(bot, self.config, 'eweek_roles', eweek_role_message)
         self.text_roles_bot = TextRoles(bot, self.config)
         self.bot.add_cog(self.emoji_roles_bot)
         self.bot.add_cog(self.text_roles_bot)
@@ -102,6 +110,7 @@ class Roles(commands.Cog):
         await self.emoji_roles_bot.on_ready(self.channels)
         await self.year_roles_bot.on_ready(self.channels)
         await self.gender_roles_bot.on_ready(self.channels)
+        await self.eweek_roles_bot.on_ready(self.channels)
         await self.text_roles_bot.on_ready(self.channels)
 
         # Clear chat
@@ -126,6 +135,10 @@ class Roles(commands.Cog):
                 if ('message' in self.gender_roles_bot.channel_info[channel]
                         and not self.gender_roles_bot.channel_info[channel]['message'] is None):
                     message_ids.append(self.gender_roles_bot.channel_info[channel]['message'].id)
+            for channel in self.eweek_roles_bot.channel_info:
+                if ('message' in self.eweek_roles_bot.channel_info[channel]
+                        and not self.eweek_roles_bot.channel_info[channel]['message'] is None):
+                    message_ids.append(self.eweek_roles_bot.channel_info[channel]['message'].id)
             for channel in self.text_roles_bot.channel_info:
                 if ('message' in self.text_roles_bot.channel_info[channel]
                         and not self.text_roles_bot.channel_info[channel]['message'] is None):
@@ -343,6 +356,4 @@ class TextRoles(commands.Cog):
                 await sent.delete(delay=5)
             await message.delete(delay=5)
         else:
-            sent = await message.channel.send('IT SHOULDNT GET HERE WTF JAY FIX IT ASAP')
-            await message.delete(delay=5)
-            await sent.delete(delay=5)
+            sent = await messa
