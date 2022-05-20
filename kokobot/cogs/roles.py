@@ -103,6 +103,9 @@ class Roles(commands.Cog):
         # Clean channels
         for channel in self.channels:
             await channel.purge(limit=None)
+
+        # Add hello message
+        for channel in self.channels:
             hello_id = await channel.send('Hello! :smiling_face_with_3_hearts:')
             self.hello_ids.append(hello_id)
 
