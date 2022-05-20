@@ -69,7 +69,7 @@ def run(
     # append cogs
     default_cogs = [
         cogs.Util,
-        cogs.Roles,
+        # cogs.Roles,  # removing roles since folks didn't want it anymore
         cogs.Koko,
         cogs.Random,
     ]
